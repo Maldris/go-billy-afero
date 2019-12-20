@@ -2,6 +2,7 @@
 package afero // import "github.com/Maldris/go-billy-afero"
 
 import (
+	"log"
 	"os"
 	"path"
 	"sync"
@@ -17,20 +18,24 @@ const (
 
 // Afero is a wrapper of the Afero API.
 type Afero struct {
-	fs   afero.Fs
-	root string
+	fs    afero.Fs
+	root  string
+	debug bool
 }
 
 // New returns a new OS filesystem.
-func New(fs afero.Fs, root string) billy.Filesystem {
+func New(fs afero.Fs, root string, debug bool) billy.Filesystem {
 	// TODO: rewrite this
-	return &Afero{fs: fs, root: root}
+	return &Afero{fs: fs, root: root, debug: debug}
 }
 
 // Create creates the named file with mode 0666 (before umask), truncating
 // it if it already exists. If successful, methods on the returned File can
 // be used for I/O; the associated file descriptor has mode O_RDWR.
 func (fs *Afero) Create(filename string) (billy.File, error) {
+	if fs.debug {
+		log.Println("Create ", filename)
+	}
 	return fs.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, defaultCreateMode)
 }
 
@@ -39,6 +44,9 @@ func (fs *Afero) Create(filename string) (billy.File, error) {
 // perm, (0666 etc.) if applicable. If successful, methods on the returned
 // File can be used for I/O.
 func (fs *Afero) OpenFile(filename string, flag int, perm os.FileMode) (billy.File, error) {
+	if fs.debug {
+		log.Println("OpenFile ", filename)
+	}
 	if flag&os.O_CREATE != 0 {
 		if err := fs.createDir(filename); err != nil {
 			return nil, err
@@ -53,6 +61,9 @@ func (fs *Afero) OpenFile(filename string, flag int, perm os.FileMode) (billy.Fi
 }
 
 func (fs *Afero) createDir(fullpath string) error {
+	if fs.debug {
+		log.Println("createDir ", fullpath)
+	}
 	dir := path.Dir(fullpath)
 	if dir != "." {
 		if err := fs.MkdirAll(dir, defaultDirectoryMode); err != nil {
@@ -66,6 +77,9 @@ func (fs *Afero) createDir(fullpath string) error {
 // ReadDir reads the directory named by dirname and returns a list of
 // directory entries sorted by filename.
 func (fs *Afero) ReadDir(path string) ([]os.FileInfo, error) {
+	if fs.debug {
+		log.Println("ReadDir ", path)
+	}
 	l, err := afero.ReadDir(fs.fs, path)
 	if err != nil {
 		return nil, err
@@ -83,6 +97,9 @@ func (fs *Afero) ReadDir(path string) ([]os.FileInfo, error) {
 // is not a directory, Rename replaces it. OS-specific restrictions may
 // apply when oldpath and newpath are in different directories.
 func (fs *Afero) Rename(from, to string) error {
+	if fs.debug {
+		log.Println("Rename ", from, to)
+	}
 	if err := fs.createDir(to); err != nil {
 		return err
 	}
@@ -95,6 +112,9 @@ func (fs *Afero) Rename(from, to string) error {
 // perm are used for all directories that MkdirAll creates. If path is/
 // already a directory, MkdirAll does nothing and returns nil.
 func (fs *Afero) MkdirAll(path string, perm os.FileMode) error {
+	if fs.debug {
+		log.Println("MkdirAll ", path)
+	}
 	return fs.fs.MkdirAll(path, defaultDirectoryMode)
 }
 
@@ -102,16 +122,25 @@ func (fs *Afero) MkdirAll(path string, perm os.FileMode) error {
 // returned file can be used for reading; the associated file descriptor has
 // mode O_RDONLY.
 func (fs *Afero) Open(filename string) (billy.File, error) {
+	if fs.debug {
+		log.Println("Open ", filename)
+	}
 	return fs.OpenFile(filename, os.O_RDONLY, 0)
 }
 
 // Stat returns a FileInfo describing the named file.
 func (fs *Afero) Stat(filename string) (os.FileInfo, error) {
+	if fs.debug {
+		log.Println("Stat ", filename)
+	}
 	return fs.fs.Stat(filename)
 }
 
 // Remove removes the named file or directory.
 func (fs *Afero) Remove(filename string) error {
+	if fs.debug {
+		log.Println("Remove ", filename)
+	}
 	return fs.fs.Remove(filename)
 }
 
@@ -124,6 +153,9 @@ func (fs *Afero) Remove(filename string) error {
 // It is the caller's responsibility to remove the file when no longer
 // needed.
 func (fs *Afero) TempFile(dir, prefix string) (billy.File, error) {
+	if fs.debug {
+		log.Println("TempFile ", dir, prefix)
+	}
 	if err := fs.createDir(dir + "/"); err != nil {
 		return nil, err
 	}
@@ -140,12 +172,18 @@ func (fs *Afero) TempFile(dir, prefix string) (billy.File, error) {
 // particular, all empty strings are ignored. On Windows, the result is a
 // UNC path if and only if the first path element is a UNC path.
 func (fs *Afero) Join(elem ...string) string {
+	if fs.debug {
+		log.Println("Join ", elem)
+	}
 	return path.Join(elem...)
 }
 
 // RemoveAll removes a directory path and any children it contains. It
 // does not fail if the path does not exist (return nil).
 func (fs *Afero) RemoveAll(filePath string) error {
+	if fs.debug {
+		log.Println("RemoveAll ", filePath)
+	}
 	return fs.fs.RemoveAll(path.Clean(filePath))
 }
 
@@ -153,6 +191,9 @@ func (fs *Afero) RemoveAll(filePath string) error {
 // symbolic link, the returned FileInfo describes the symbolic link. Lstat
 // makes no attempt to follow the link.
 func (fs *Afero) Lstat(filename string) (os.FileInfo, error) {
+	if fs.debug {
+		log.Println("Lstat ", filename)
+	}
 	if lstater, ok := fs.fs.(afero.Lstater); ok {
 		fileInfo, _, err := lstater.LstatIfPossible(filename)
 		return fileInfo, err
@@ -164,6 +205,9 @@ func (fs *Afero) Lstat(filename string) (os.FileInfo, error) {
 // absolute or relative path, and need not refer to an existing node.
 // Parent directories of link are created as necessary.
 func (fs *Afero) Symlink(target, link string) error {
+	if fs.debug {
+		log.Println("Symlink ", target, link)
+	}
 	if err := fs.createDir(link); err != nil {
 		return err
 	}
@@ -177,6 +221,9 @@ func (fs *Afero) Symlink(target, link string) error {
 
 // Readlink returns the target path of link.
 func (fs *Afero) Readlink(link string) (string, error) {
+	if fs.debug {
+		log.Println("Readlink ", link)
+	}
 	if reader, ok := fs.fs.(afero.LinkReader); ok {
 		return reader.ReadlinkIfPossible(link)
 	}
@@ -188,16 +235,25 @@ func (fs *Afero) Readlink(link string) (string, error) {
 // the given path. Files outside of the designated directory tree cannot be
 // accessed.
 func (fs *Afero) Chroot(fPath string) (billy.Filesystem, error) {
-	return &Afero{fs: afero.NewBasePathFs(fs.fs, fPath), root: path.Join(fs.root, fPath)}, nil
+	if fs.debug {
+		log.Println("Chroot ", fPath)
+	}
+	return &Afero{fs: afero.NewBasePathFs(fs.fs, fPath), root: path.Join(fs.root, fPath), debug: fs.debug}, nil
 }
 
 // Root returns the root path of the filesystem.
 func (fs *Afero) Root() string {
+	if fs.debug {
+		log.Println("Root")
+	}
 	return fs.root
 }
 
 // Capabilities implements the Capable interface.
 func (fs *Afero) Capabilities() billy.Capability {
+	if fs.debug {
+		log.Println("Capabilities")
+	}
 	return billy.DefaultCapabilities
 }
 
