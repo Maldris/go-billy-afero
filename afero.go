@@ -238,7 +238,7 @@ func (fs *Afero) Chroot(fPath string) (billy.Filesystem, error) {
 	if fs.Debug {
 		log.Println("Chroot ", fPath)
 	}
-	return &Afero{fs: afero.NewBasePathFs(fs.fs, fPath), root: fs.root, Debug: fs.Debug}, nil
+	return &Afero{fs: afero.NewBasePathFs(fs.fs, fPath), root: path.Join(fs.root, fPath), Debug: fs.Debug}, nil
 }
 
 // Root returns the root path of the filesystem.
