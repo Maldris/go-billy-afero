@@ -98,7 +98,7 @@ func (fs *Afero) ReadDir(path string) ([]os.FileInfo, error) {
 // apply when oldpath and newpath are in different directories.
 func (fs *Afero) Rename(from, to string) error {
 	if fs.Debug {
-		log.Println("Rename \n", from, "n", to)
+		log.Println("Rename \n", from, "\n", to)
 	}
 	if err := fs.createDir(to); err != nil {
 		return err
