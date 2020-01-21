@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/Maldris/afero"
@@ -57,7 +59,11 @@ func (fs *Afero) OpenFile(filename string, flag int, perm os.FileMode) (billy.Fi
 	if err != nil {
 		return nil, err
 	}
-	return &file{File: f}, err
+	name := filepath.ToSlash(f.Name())
+	if strings.HasPrefix(name, fs.root) {
+		name = strings.TrimPrefix(name, fs.root)
+	}
+	return &file{File: f, name: name}, err
 }
 
 func (fs *Afero) createDir(fullpath string) error {
@@ -164,7 +170,14 @@ func (fs *Afero) TempFile(dir, prefix string) (billy.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &file{File: f}, nil
+	name := filepath.ToSlash(f.Name())
+	if strings.HasPrefix(name, fs.root) {
+		name = strings.TrimPrefix(name, fs.root)
+	}
+	if fs.Debug {
+		log.Println("Tempfile created: ", name)
+	}
+	return &file{File: f, name: name}, nil
 }
 
 // Join joins any number of path elements into a single path, adding a
@@ -260,7 +273,8 @@ func (fs *Afero) Capabilities() billy.Capability {
 // file is a wrapper for an os.File which adds support for file locking.
 type file struct {
 	afero.File
-	m sync.Mutex
+	name string
+	m    sync.Mutex
 }
 
 // Lock requests that a file is lock
@@ -273,4 +287,8 @@ func (f *file) Lock() error {
 func (f *file) Unlock() error {
 	f.m.Unlock()
 	return nil
+}
+
+func (f *file) Name() string {
+	return f.name
 }
