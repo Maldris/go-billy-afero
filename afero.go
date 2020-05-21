@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/go-git/go-billy"
 	"github.com/spf13/afero"
-	"gopkg.in/src-d/go-billy.v4"
 )
 
 const (
