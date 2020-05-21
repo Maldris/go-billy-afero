@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Maldris/afero"
+	"github.com/spf13/afero"
 	"gopkg.in/src-d/go-billy.v4"
 )
 
