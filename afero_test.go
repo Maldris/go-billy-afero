@@ -308,6 +308,14 @@ func TestRename(t *testing.T) {
 	}
 }
 
+func TestRename2(t *testing.T) {
+	err := testFs.Rename("dir/nested/no", "dir/nested/fail")
+	if err == nil {
+		t.Error("Renamed a file that does not exist")
+		return
+	}
+}
+
 func TestMkdirAll(t *testing.T) {
 	err := testFs.MkdirAll("make/this/directory", defaultDirectoryMode)
 	if err != nil {
