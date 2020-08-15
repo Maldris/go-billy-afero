@@ -99,9 +99,36 @@ func createTestFileset(fs afero.Fs) error {
 		return errors.Wrap(err, "Error creating test file 'nested/test/dir/file'")
 	}
 
-	err = afero.WriteFile(fs, "dir/deleteMe", []byte(dirFileCont1), defaultCreateMode)
+	err = afero.WriteFile(fs, "dir/nested/deleteMe", []byte(dirFileCont1), defaultCreateMode)
 	if err != nil {
-		return errors.Wrap(err, "Error creating test file 'dir/deleteMe'")
+		return errors.Wrap(err, "Error creating test file 'dir/nested/deleteMe'")
+	}
+
+	err = afero.WriteFile(fs, "dir/nested/renameMe", []byte(dirFileCont1), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/nested/renameMe'")
+	}
+
+	err = afero.WriteFile(fs, "dir/nested/test/folder/file1", []byte(dirFileCont1), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/nested/test/folder/file1'")
+	}
+
+	err = afero.WriteFile(fs, "dir/nested/test/folder/file2", []byte(dirFileCont2), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/nested/test/folder/file2'")
+	}
+
+	err = afero.WriteFile(fs, "dir/nested/test/folder/file3", []byte(dirFileCont3), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/nested/test/folder/file3'")
+	}
+
+	linker := fs.(afero.Symlinker)
+
+	err = linker.SymlinkIfPossible("dir/file1", "dir/nested/test/symlink")
+	if err != nil {
+		return errors.Wrap(err, "Error creating symlink from 'dir/file1' to 'dir/nested/test/symlink'")
 	}
 
 	return nil
