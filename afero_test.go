@@ -234,6 +234,15 @@ func TestOpenFile(t *testing.T) {
 	}
 }
 
+func TestOpenFile2(t *testing.T) {
+	f, err := testFs.OpenFile("no.file", os.O_RDONLY, 0)
+	if err == nil {
+		f.Close()
+		t.Error("Successfully opened file that does not exist, should not happen with RDONLY")
+		return
+	}
+}
+
 func TestReadDir(t *testing.T) {
 	sts, err := testFs.ReadDir("dir")
 	if err != nil {
