@@ -41,7 +41,7 @@ func TestMain(m *testing.M) {
 		log.Println("Error creating test fileset: ", err)
 		os.Exit(1)
 	}
-	testFs = New(bpFs, "/", true).(*Afero) // debug true so failing tests leave more information
+	testFs = New(bpFs, name, true).(*Afero) // debug true so failing tests leave more information
 
 	result := m.Run()
 
