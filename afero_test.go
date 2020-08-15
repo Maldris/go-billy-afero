@@ -371,3 +371,27 @@ func TestStat2(t *testing.T) {
 		return
 	}
 }
+
+func TestRemove(t *testing.T) {
+	err := testFs.Remove("dir/nested/deleteMe")
+	if err != nil {
+		t.Error("Error while deleting test file: ", err)
+		return
+	}
+
+	_, err = testFs.fs.Stat("dir/nested/deleteMe")
+	if err == nil {
+		t.Error("Stat of deleted file succeeded")
+		return
+	}
+	// TODO: how best to check its the correct error?
+}
+
+func TestRemove2(t *testing.T) {
+	err := testFs.Remove("dir/nested/non-existant")
+	if err == nil {
+		t.Error("Deleting a non-existant file succeeded")
+		return
+	}
+	// TODO: how best to check its the correct error?
+}
