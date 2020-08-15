@@ -26,6 +26,11 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	bpFs := afero.NewBasePathFs(fs, name)
+	err = createTestFileset(bpFs)
+	if err != nil {
+		log.Println("Error creating test fileset: ", err)
+		os.Exit(1)
+	}
 	testFs = New(bpFs, "/", true).(*Afero) // debug true so failing tests leave more information
 
 	result := m.Run()
@@ -37,5 +42,54 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(result)
+}
+
+func createTestFileset(fs afero.Fs) error {
+	err := fs.Mkdir("dir", defaultDirectoryMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test directory 'dir'")
+	}
+
+	err = fs.MkdirAll("nested/test/dir", defaultDirectoryMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test path 'nested/test/dir'")
+	}
+
+	err = fs.MkdirAll("dir/nested/test/folder", defaultDirectoryMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test path 'dir/nested/test/folder'")
+	}
+
+	err = afero.WriteFile(fs, "root.file", []byte(rootFileCont), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'root.file'")
+	}
+
+	err = afero.WriteFile(fs, "dir/file1", []byte(dirFileCont1), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/file1'")
+	}
+
+	err = afero.WriteFile(fs, "dir/file.2", []byte(dirFileCont2), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/file.2'")
+	}
+
+	err = afero.WriteFile(fs, "dir/3file", []byte(dirFileCont3), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/3file'")
+	}
+
+	err = afero.WriteFile(fs, "nested/test/dir/file", []byte(nestedFileCont), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'nested/test/dir/file'")
+	}
+
+	err = afero.WriteFile(fs, "dir/deleteMe", []byte(dirFileCont1), defaultCreateMode)
+	if err != nil {
+		return errors.Wrap(err, "Error creating test file 'dir/deleteMe'")
+	}
+
+	return nil
 }
 
