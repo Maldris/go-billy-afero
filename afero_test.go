@@ -535,3 +535,54 @@ func TestReadlink(t *testing.T) {
 	}
 }
 
+func TestChroot(t *testing.T) {
+	fs, err := testFs.Chroot("dir")
+	if err != nil {
+		t.Error("Error getting chroot of known folder: ", err)
+		return
+	}
+
+	if fs.Root() != tempDir+"/dir" {
+		t.Error("Chroot returns wrong root directory: ", fs.Root())
+		return
+	}
+
+	sts, err := fs.ReadDir("/")
+	if err != nil {
+		t.Error("Error stating directory in chroot: ", err)
+		return
+	}
+
+	if len(sts) != 4 {
+		t.Error("Not the expected number of files found")
+		return
+	}
+
+	type statResult struct {
+		found bool
+		isDir bool
+	}
+
+	found := map[string]statResult{
+		"file1":  statResult{found: false, isDir: false},
+		"file.2": statResult{found: false, isDir: false},
+		"3file":  statResult{found: false, isDir: false},
+		"nested": statResult{found: false, isDir: true},
+	}
+
+	for _, st := range sts {
+		expect := found[st.Name()]
+		if st.IsDir() != expect.isDir {
+			t.Error(st.Name() + " does not match the expected file/directory status")
+		}
+		expect.found = true
+		found[st.Name()] = expect
+	}
+
+	for name := range found {
+		if !found[name].found {
+			t.Error("Expected file " + name + " not found")
+		}
+	}
+}
+
