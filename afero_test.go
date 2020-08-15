@@ -312,3 +312,22 @@ func TestMkdirAll(t *testing.T) {
 		return
 	}
 }
+
+func TestOpen(t *testing.T) {
+	f, err := testFs.Open("dir/3file")
+	if err != nil {
+		t.Error("Error opening file: ", err)
+		return
+	}
+	defer f.Close()
+
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		t.Error("Error reading file content: ", err)
+		return
+	}
+
+	if string(data) != dirFileCont3 {
+		t.Error("File content does not match expected value")
+	}
+}
