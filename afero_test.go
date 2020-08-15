@@ -1,10 +1,13 @@
 package afero
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"testing"
 
+
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
 
@@ -204,6 +207,26 @@ func TestCreate2(t *testing.T) {
 
 	if string(data) != dirFileCont1 {
 		t.Error("File content does not match written value: ", err)
+		return
+	}
+}
+
+func TestOpenFile(t *testing.T) {
+	f, err := testFs.OpenFile("root.file", os.O_RDONLY, 0)
+	if err != nil {
+		t.Error("Error opening file: ", err)
+		return
+	}
+	defer f.Close()
+
+	content, err := ioutil.ReadAll(f)
+	if err != nil {
+		t.Error("Error reading file content: ", err)
+		return
+	}
+
+	if string(content) != rootFileCont {
+		t.Error("File content does not match expected test value")
 		return
 	}
 }
