@@ -569,6 +569,40 @@ func TestSymlink(t *testing.T) {
 	}
 }
 
+func TestSymlink2(t *testing.T) {
+	err := testFs.Symlink("dir", "symFolder")
+	if err != nil {
+		t.Error("Error symlinking test folder: ", err)
+		return
+	}
+
+	st, err := testFs.Lstat("symFolder")
+	if err != nil {
+		t.Error("Error stating new symlink folder: ", err)
+		return
+	}
+
+	if st == nil {
+		t.Error("Stat of symlink is nil")
+		return
+	}
+
+	if st.Mode()&os.ModeSymlink != os.ModeSymlink {
+		t.Error("Symlink folder is not reported as symlink: ", st.Mode())
+		return
+	}
+
+	sts, err := testFs.ReadDir("symFolder")
+	if err != nil {
+		t.Error("Error reading symlink folder contents: ", err)
+		return
+	}
+
+	if len(sts) != 4 {
+		t.Error("symlink folder does not have the correct contents")
+	}
+}
+
 func TestReadlink(t *testing.T) {
 	dest, err := testFs.Readlink("dir/nested/test/symlink")
 	if err != nil {
