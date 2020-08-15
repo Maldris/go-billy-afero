@@ -134,3 +134,76 @@ func createTestFileset(fs afero.Fs) error {
 	return nil
 }
 
+// ================
+// Filesystem Tests
+// ================
+
+func TestCreate(t *testing.T) {
+	f, err := testFs.Create("rootFile")
+	if err != nil {
+		t.Error("Error creating test file: ", err)
+		return
+	}
+	defer f.Close()
+
+	st, err := testFs.fs.Stat("rootFile")
+	if err != nil {
+		t.Error("Unable to stat created file: ", err)
+		return
+	}
+	if st == nil {
+		t.Error("Test file does not exist")
+		return
+	}
+
+	n, err := f.Write([]byte(dirFileCont1))
+	if err != nil {
+		t.Error("Error writing to created file: ", err)
+		return
+	}
+	if n != len(dirFileCont1) {
+		t.Error("write length does not match content length: ", n, " of ", len(dirFileCont1))
+		return
+	}
+
+	data, err := afero.ReadFile(testFs.fs, "rootFile")
+	if err != nil {
+		t.Error("Error reading created file content: ", err)
+		return
+	}
+
+	if string(data) != dirFileCont1 {
+		t.Error("File content does not match written value: ", err)
+		return
+	}
+}
+
+func TestCreate2(t *testing.T) {
+	f, err := testFs.Create("dir/file.2")
+	if err != nil {
+		t.Error("Error creating test file: ", err)
+		return
+	}
+	defer f.Close()
+
+	n, err := f.Write([]byte(dirFileCont1))
+	if err != nil {
+		t.Error("Error writing to truncated file: ", err)
+		return
+	}
+	if n != len(dirFileCont1) {
+		t.Error("write length does not match content length: ", n, " of ", len(dirFileCont1))
+		return
+	}
+
+	data, err := afero.ReadFile(testFs.fs, "dir/file.2")
+	if err != nil {
+		t.Error("Error reading truncated file content: ", err)
+		return
+	}
+
+	if string(data) != dirFileCont1 {
+		t.Error("File content does not match written value: ", err)
+		return
+	}
+}
