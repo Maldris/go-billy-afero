@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-git/go-billy"
+	"github.com/go-git/go-billy/v5"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"

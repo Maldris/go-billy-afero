@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-git/go-billy"
+	"github.com/go-git/go-billy/v5"
 	"github.com/spf13/afero"
 )
 
