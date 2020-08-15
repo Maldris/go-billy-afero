@@ -25,6 +25,7 @@ func TestMain(m *testing.M) {
 		log.Println("Error creating temp directory for testing: ", err)
 		os.Exit(1)
 	}
+	defer fs.RemoveAll(name)
 	bpFs := afero.NewBasePathFs(fs, name)
 	err = createTestFileset(bpFs)
 	if err != nil {
@@ -34,12 +35,6 @@ func TestMain(m *testing.M) {
 	testFs = New(bpFs, "/", true).(*Afero) // debug true so failing tests leave more information
 
 	result := m.Run()
-
-	err = fs.RemoveAll(name)
-	if err != nil {
-		log.Println("Error removing test artifacts: ", err)
-		os.Exit(1)
-	}
 
 	os.Exit(result)
 }
