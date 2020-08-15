@@ -431,3 +431,15 @@ func TestJoin(t *testing.T) {
 	}
 }
 
+func TestRemoveAll(t *testing.T) {
+	err := testFs.RemoveAll("dir/nested/test/folder")
+	if err != nil {
+		t.Error("Error removing directory and contents", err)
+		return
+	}
+
+	_, err = testFs.fs.Stat("dir/nested/test/folder")
+	if err == nil {
+		t.Error("Stating deleted folder succeeded")
+	}
+}
