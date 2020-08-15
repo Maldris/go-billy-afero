@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-git/go-billy/v5"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
@@ -280,6 +279,14 @@ func TestReadDir(t *testing.T) {
 		if !found[name].found {
 			t.Error("Expected file " + name + " not found")
 		}
+	}
+}
+
+func TestReadDir2(t *testing.T) {
+	_, err := testFs.ReadDir("missing")
+	if err == nil {
+		t.Error("Read a directory that does not exist")
+		return
 	}
 }
 
