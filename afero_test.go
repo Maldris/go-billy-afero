@@ -395,3 +395,19 @@ func TestRemove2(t *testing.T) {
 	}
 	// TODO: how best to check its the correct error?
 }
+
+func TestTempFile(t *testing.T) {
+	f, err := testFs.TempFile("dir/nested/test", "temp")
+	if err != nil {
+		t.Error("Error creating temp file: ", err)
+		return
+	}
+	defer f.Close()
+
+	_, err = testFs.fs.Stat(f.Name())
+	if err != nil {
+		t.Error("Error stating new temp file: ", err)
+	}
+
+	// don't worry about deleting the temp file, will be handled in test process cleanup
+}
