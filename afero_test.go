@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-git/go-billy"
 
@@ -601,3 +602,36 @@ func TestCapabilities(t *testing.T) {
 	}
 }
 
+// ====================
+// File Reference Tests
+// ====================
+
+func TestFileLock(t *testing.T) {
+	f, err := testFs.Open("root.file")
+	if err != nil {
+
+	}
+	defer f.Close()
+
+	f.Lock()
+	ch := make(chan bool)
+	getSecondLock := func(f billy.File) {
+		f.Lock()
+		ch <- true
+	}
+	go getSecondLock(f)
+
+	select {
+	case <-ch:
+		t.Error("Lock did not prevent another lock")
+		ch <- true
+	case <-time.After(time.Millisecond * 10):
+	}
+
+	f.Unlock()
+	<-time.After(time.Millisecond * 10)
+	f.Unlock()
+	<-time.After(time.Millisecond * 10)
+	<-ch
+	close(ch)
+}
