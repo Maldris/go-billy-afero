@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/go-git/go-billy/v5"
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )
 
@@ -256,6 +257,15 @@ func (fs *Afero) Chroot(fPath string) (billy.Filesystem, error) {
 	if fs.Debug {
 		log.Println("Chroot ", fPath)
 	}
+	st, err := fs.Stat(fPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if !st.IsDir() {
+		return nil, errors.New("Cannot set root, not a directory")
+	}
+
 	return &Afero{fs: afero.NewBasePathFs(fs.fs, fPath), root: path.Join(fs.root, fPath), Debug: fs.Debug}, nil
 }
 
