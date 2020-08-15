@@ -443,3 +443,46 @@ func TestRemoveAll(t *testing.T) {
 		t.Error("Stating deleted folder succeeded")
 	}
 }
+
+func TestLstat(t *testing.T) {
+	st, err := testFs.Lstat("dir/nested/test/symlink")
+	if err != nil {
+		t.Error("Unable to lstat symlink")
+		return
+	}
+
+	if st == nil {
+		t.Error("lstat of symlink is nil")
+		return
+	}
+
+	if st.Mode()&os.ModeSymlink != os.ModeSymlink {
+		t.Error("Symlink file is not reported as symlink: ", st.Mode())
+	}
+
+}
+
+func TestLstat2(t *testing.T) {
+	st, err := testFs.Lstat("dir/file1")
+	if err != nil {
+		t.Error("Unable to lstat root file")
+		return
+	}
+
+	if st == nil {
+		t.Error("lstat of file is nil")
+		return
+	}
+
+	if st.Mode()&os.ModeSymlink == os.ModeSymlink {
+		t.Error("Regular file is reported as symlink: ", st.Mode())
+	}
+}
+
+func TestLstat3(t *testing.T) {
+	_, err := testFs.Lstat("dir/not-real")
+	if err == nil {
+		t.Error("Successfull lstat of a non-existant file")
+	}
+}
+
