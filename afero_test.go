@@ -22,8 +22,13 @@ const (
 )
 
 func TestMain(m *testing.M) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Println("Errorgetting working directory: ", err)
+		os.Exit(1)
+	}
 	fs := afero.NewOsFs()
-	name, err := afero.TempDir(fs, "/", "tests")
+	name, err := afero.TempDir(fs, pwd, "tests.")
 	if err != nil {
 		log.Println("Error creating temp directory for testing: ", err)
 		os.Exit(1)
