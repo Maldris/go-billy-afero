@@ -486,6 +486,13 @@ func TestRemoveAll(t *testing.T) {
 	}
 }
 
+func TestRemoveAll2(t *testing.T) {
+	err := testFs.RemoveAll("not-there")
+	if err != nil {
+		t.Error("Remove all should succeed if target does not exist, instead got error: ", err)
+	}
+}
+
 func TestLstat(t *testing.T) {
 	st, err := testFs.Lstat("dir/nested/test/symlink")
 	if err != nil {
