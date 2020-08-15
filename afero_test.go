@@ -8,9 +8,12 @@ import (
 	"github.com/spf13/afero"
 )
 
-var testFs *Afero
-
 var (
+	testFs  *Afero
+	tempDir string
+)
+
+const (
 	rootFileCont   = "I'm in the root path"
 	dirFileCont1   = "I'm in a directory"
 	dirFileCont2   = "" // file exists but is empty
@@ -25,7 +28,8 @@ func TestMain(m *testing.M) {
 		log.Println("Error creating temp directory for testing: ", err)
 		os.Exit(1)
 	}
-	defer fs.RemoveAll(name)
+	tempDir = name
+
 	bpFs := afero.NewBasePathFs(fs, name)
 	err = createTestFileset(bpFs)
 	if err != nil {
