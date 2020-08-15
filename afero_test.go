@@ -288,3 +288,27 @@ func TestRename(t *testing.T) {
 		t.Error("Renamed file content is not that of original file")
 	}
 }
+
+func TestMkdirAll(t *testing.T) {
+	err := testFs.MkdirAll("make/this/directory", defaultDirectoryMode)
+	if err != nil {
+		t.Error("Error making all directories to path: ", err)
+		return
+	}
+
+	st, err := testFs.fs.Stat("make/this/directory")
+	if err != nil {
+		t.Error("Error stating created directory: ", err)
+		return
+	}
+
+	if st == nil {
+		t.Error("Stat of created directory is nil")
+		return
+	}
+
+	if !st.IsDir() {
+		t.Error("Created directory is not a directory")
+		return
+	}
+}
