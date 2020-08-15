@@ -603,6 +603,36 @@ func TestSymlink2(t *testing.T) {
 	}
 }
 
+func TestSymlink3(t *testing.T) {
+	err := testFs.Symlink("not-there", "dir/nested/test/symlink3")
+	if err != nil {
+		t.Error("Error symlinking absent file: ", err)
+		return
+	}
+
+	st, err := testFs.Lstat("dir/nested/test/symlink3")
+	if err != nil {
+		t.Error("Error stating new symlink file: ", err)
+		return
+	}
+
+	if st == nil {
+		t.Error("Stat of symlink is nil")
+		return
+	}
+
+	if st.Mode()&os.ModeSymlink != os.ModeSymlink {
+		t.Error("Symlink file is not reported as symlink: ", st.Mode())
+		return
+	}
+
+	_, err = afero.ReadFile(testFs.fs, "dir/nested/test/symlink3")
+	if err == nil {
+		t.Error("Read a linked file with a dangling reference")
+	}
+
+}
+
 func TestReadlink(t *testing.T) {
 	dest, err := testFs.Readlink("dir/nested/test/symlink")
 	if err != nil {
