@@ -238,7 +238,12 @@ func (fs *Afero) Readlink(link string) (string, error) {
 		log.Println("Readlink ", link)
 	}
 	if reader, ok := fs.fs.(afero.LinkReader); ok {
-		return reader.ReadlinkIfPossible(link)
+		dest, err := reader.ReadlinkIfPossible(link)
+		if err != nil {
+			return dest, err
+		}
+		dest = strings.TrimPrefix(dest, fs.root)
+		return dest, nil
 	}
 
 	return "", &os.PathError{Op: "readlink", Path: link, Err: afero.ErrNoReadlink}
