@@ -359,6 +359,14 @@ func TestOpen(t *testing.T) {
 	}
 }
 
+func TestOpen2(t *testing.T) {
+	f, err := testFs.Open("no-file")
+	if err == nil {
+		f.Close()
+		t.Error("Opened a file that does not exist")
+	}
+}
+
 func TestStat(t *testing.T) {
 	st, err := testFs.Stat("nested/test/dir/file")
 	if err != nil {
