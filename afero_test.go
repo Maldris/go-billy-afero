@@ -486,3 +486,37 @@ func TestLstat3(t *testing.T) {
 	}
 }
 
+func TestSymlink(t *testing.T) {
+	err := testFs.Symlink("dir/file1", "dir/nested/test/symlink2")
+	if err != nil {
+		t.Error("Error symlinking test file: ", err)
+		return
+	}
+
+	st, err := testFs.Lstat("dir/nested/test/symlink2")
+	if err != nil {
+		t.Error("Error stating new symlink file: ", err)
+		return
+	}
+
+	if st == nil {
+		t.Error("Stat of symlink is nil")
+		return
+	}
+
+	if st.Mode()&os.ModeSymlink != os.ModeSymlink {
+		t.Error("Symlink file is not reported as symlink: ", st.Mode())
+		return
+	}
+
+	data, err := afero.ReadFile(testFs.fs, "dir/nested/test/symlink2")
+	if err != nil {
+		t.Error("Error reading symlink file content: ", err)
+		return
+	}
+
+	if string(data) != dirFileCont1 {
+		t.Error("symlink file content it not that of root file")
+	}
+}
+
