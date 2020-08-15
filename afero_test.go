@@ -331,3 +331,43 @@ func TestOpen(t *testing.T) {
 		t.Error("File content does not match expected value")
 	}
 }
+
+func TestStat(t *testing.T) {
+	st, err := testFs.Stat("nested/test/dir/file")
+	if err != nil {
+		t.Error("Unable to stat test file: ", err)
+		return
+	}
+
+	if st == nil {
+		t.Error("Stat of test file should not be nil")
+		return
+	}
+
+	if st.IsDir() {
+		t.Error("Stat reports file as directory")
+		return
+	}
+
+	if st.Size() != int64(len(nestedFileCont)) {
+		t.Error("File size does not match assigned content")
+	}
+}
+
+func TestStat2(t *testing.T) {
+	st, err := testFs.Stat("nested/test/dir")
+	if err != nil {
+		t.Error("Unable to stat test directory: ", err)
+		return
+	}
+
+	if st == nil {
+		t.Error("Stat of test directory should not be nil")
+		return
+	}
+
+	if !st.IsDir() {
+		t.Error("Stat reports directory as file")
+		return
+	}
+}
