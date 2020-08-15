@@ -520,3 +520,18 @@ func TestSymlink(t *testing.T) {
 	}
 }
 
+func TestReadlink(t *testing.T) {
+	dest, err := testFs.Readlink("dir/nested/test/symlink")
+	if err != nil {
+		t.Error("Error reading symlink: ", err)
+		return
+	}
+
+	// handle platform specific path's
+	dest = strings.ReplaceAll(dest, "\\", "/")
+
+	if dest != "/dir/file1" {
+		t.Error("Symlink does not point to the expected 'dir/file1', instead found: ", dest)
+	}
+}
+
