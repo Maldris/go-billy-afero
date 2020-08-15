@@ -4,8 +4,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"testing"
 
+	"github.com/go-git/go-billy"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -583,6 +585,19 @@ func TestChroot(t *testing.T) {
 		if !found[name].found {
 			t.Error("Expected file " + name + " not found")
 		}
+	}
+}
+
+func TestRoot(t *testing.T) {
+	root := testFs.Root()
+	if root != tempDir {
+		t.Error("Filesystem root reported '", root, "' expecting: '", tempDir, "'")
+	}
+}
+
+func TestCapabilities(t *testing.T) {
+	if testFs.Capabilities() != billy.DefaultCapabilities {
+		t.Error("Capabilities not reporting as expected")
 	}
 }
 
