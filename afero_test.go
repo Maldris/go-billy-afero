@@ -699,6 +699,13 @@ func TestChroot(t *testing.T) {
 	}
 }
 
+func TestChroot2(t *testing.T) {
+	_, err := testFs.Chroot("not")
+	if err == nil {
+		t.Error("Chroot of bad path")
+	}
+}
+
 func TestRoot(t *testing.T) {
 	root := testFs.Root()
 	if root != tempDir {
