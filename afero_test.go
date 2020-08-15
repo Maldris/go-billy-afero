@@ -411,3 +411,23 @@ func TestTempFile(t *testing.T) {
 
 	// don't worry about deleting the temp file, will be handled in test process cleanup
 }
+
+func TestJoin(t *testing.T) {
+	set := map[string][]string{
+		"test/join":                 {"test", "join"},
+		"test/longer/join":          {"test", "longer/join"},
+		"test/join/fragment":        {"test/join", "fragment"},
+		"test/longer/join/fragment": {"test/longer", "join/fragment"},
+		"join/test":                 {"join", "", "", "", "test"},
+		"clean/join":                {"clean///", "join"},
+		"/absolute/join":            {"///absolute////", "", "", "////join////"},
+	}
+
+	for result, inp := range set {
+		res := testFs.Join(inp...)
+		if result != res {
+			t.Error("Join did not produce the expected result of '"+result+"' for the input: ", inp, " instead got: ", res)
+		}
+	}
+}
+
