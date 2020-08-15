@@ -407,6 +407,13 @@ func TestStat2(t *testing.T) {
 	}
 }
 
+func TestStat3(t *testing.T) {
+	_, err := testFs.Stat("does-not-exist")
+	if err == nil {
+		t.Error("stat a file that does not exist")
+	}
+}
+
 func TestRemove(t *testing.T) {
 	err := testFs.Remove("dir/nested/deleteMe")
 	if err != nil {
