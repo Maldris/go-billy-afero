@@ -39,11 +39,21 @@ func TestMain(m *testing.M) {
 	err = createTestFileset(bpFs)
 	if err != nil {
 		log.Println("Error creating test fileset: ", err)
+		err = fs.RemoveAll(name)
+		if err != nil {
+			log.Println("Error deleting test directory: ", err)
+		}
 		os.Exit(1)
 	}
 	testFs = New(bpFs, name, true).(*Afero) // debug true so failing tests leave more information
 
 	result := m.Run()
+
+	err = fs.RemoveAll(name)
+	if err != nil {
+		log.Println("Error deleting test directory: ", err)
+		os.Exit(1)
+	}
 
 	os.Exit(result)
 }
